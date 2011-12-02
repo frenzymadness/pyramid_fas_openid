@@ -69,6 +69,8 @@ def verify_openid(context, request):
         return process_incoming_request(context, request, incoming_openid_url)
     elif openid_mode == 'id_res':
         return process_provider_response(context, request)
+    elif openid_mode == 'cancel':
+        return error_to_login_form(request, 'Login request cancelled')
     return HTTPBadRequest()
 
 
