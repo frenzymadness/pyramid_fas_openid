@@ -72,7 +72,7 @@ def verify_openid(context, request):
     return HTTPBadRequest()
 
 
-def worthless_callback(request, success_dict, success_dict = {}):
+def worthless_callback(request, success_args, success_dict = {}):
     pass
 
 
@@ -140,11 +140,7 @@ def process_incoming_request(context, request, incoming_openid_url):
                 'No OpenID services found for %s' % incoming_openid_url)
     #Not sure what the point of setting this to anything else is
     realm_name = settings.get('openid.realm_name', request.host_url)
-    temp_url = urlparse.urlparse(request.url)
-    temp_url_qs = urlparse.parse_qs(temp_url.query)
-    temp_url_qs.pop(settings.get('openid.param_field_name', 'openid'))
-    return_url = urlparse.urlunsplit((temp_url.scheme, temp_url.netloc, \
-                 temp_url.path, temp_url_qs, temp_url.fragment))
+    return_url = request.url
     redirect_url = openid_request.redirectURL(realm_name, return_url)
     log.info('Realm Name: %s' % realm_name)
     log.info('Return URL from provider will be: %s' % return_url)
