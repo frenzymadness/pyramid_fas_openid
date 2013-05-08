@@ -26,6 +26,9 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.security import remember
 
+import fedora._openid_extensions.openid_teams as teams
+import fedora._openid_extensions.openid_cla as cla
+
 from itertools import chain
 
 import logging
@@ -128,6 +131,9 @@ def process_incoming_request(context, request, incoming_openid_url):
             sreq = sreg.SRegRequest(required=sreg_required,
                     optional=sreg_optional)
             openid_request.addExtension(sreq)
+
+        openid_request.addExtension(teams.TeamsRequest(requested=['_FAS_ALL_GROUPS_'])) # Magic value which requests all groups from FAS-OpenID >= 0.2.0
+        openid_request.addExtension(cla.CLARequest(requested=[cla.CLA_URI_FEDORA_DONE]))
     except consumer.DiscoveryFailure, exc:
         # eventually no openid server could be found
         return error_to_login_form(request, 'Error in discovery: %s' % exc[0])
@@ -181,6 +187,12 @@ def process_provider_response(context, request):
                     success_dict['sreg'][key] = fr.get(key)
                 except KeyError:
                     pass
+
+        teams_resp = teams.TeamsResponse.fromSuccessResponse(info)
+        success_dict['groups'] = teams_resp.teams
+
+        cla_resp = cla.CLAResponse.fromSuccessResponse(info)
+        success_dict['cla_done'] = cla.CLA_URI_FEDORA_DONE in cla_resp.clas
 
         callback = settings.get('openid.success_callback', None)
         if callback is not None:
