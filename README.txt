@@ -1,4 +1,4 @@
-pyramid_openid provides a view for the Pyramid framework that acts as an OpenID consumer.
+pyramid_fas_openid provides a view for the Pyramid framework that acts as an OpenID consumer for the Fedora Account System.
 
 This code is offered under the BSD-derived Repoze Public License.
 
