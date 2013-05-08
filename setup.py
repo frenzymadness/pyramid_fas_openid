@@ -21,5 +21,5 @@ setup(name='pyramid_fas_openid',
         author_email='tomlikestorock@gmail.com',
         license='BSD-derived (http://www.repoze.org/LICENSE.txt)',
         packages=find_packages(),
-        install_requires=['pyramid', 'python-openid']
+        install_requires=['pyramid', 'python-openid', 'python-fedora']
 )
