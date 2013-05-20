@@ -81,34 +81,10 @@ def worthless_callback(request, success_args, success_dict = {}):
     pass
 
 
-def build_consumer_from_request(request):
-    settings = request.registry.settings
-    store_type = settings.get('openid.store.type')
-    log.info('Store type to use: %s' % store_type)
-    store = None
-    if store_type == 'file':
-        store_file_path = settings.get('openid.store.file.path')
-        log.info('File Store Path: %s' % store_file_path)
-        store = filestore.FileOpenIDStore(store_file_path)
-    elif store_type == 'mem':
-        store = memstore.MemoryStore()
-    elif store_type == 'sql':
-        # TODO: This does not work as we need a connection, not a string
-        sql_connstring = settings.get('openid.store.sql.connection_string')
-        sql_associations_table = settings.get(
-                'openid.store.sql.associations_table')
-        store = sqlstore.SQLStore(sql_connstring,
-                sql_associations_table,
-                sql_connstring)
-    log.info('Store: %s' % store)
-    openid_consumer = consumer.Consumer(request.session, store)
-    return openid_consumer
-
-
 def process_incoming_request(context, request, incoming_openid_url):
     settings = request.registry.settings
     log.info('OpenID URL supplied by user: %s' % incoming_openid_url)
-    openid_consumer = build_consumer_from_request(request)
+    openid_consumer = consumer.Consumer(request.session, None)
     try:
         openid_request = openid_consumer.begin(incoming_openid_url)
         ax_required = get_ax_required_from_settings(settings)
@@ -158,7 +134,7 @@ def process_incoming_request(context, request, incoming_openid_url):
 
 def process_provider_response(context, request):
     settings = request.registry.settings
-    openid_consumer = build_consumer_from_request(request)
+    openid_consumer = consumer.Consumer(request.session, None)
     info = openid_consumer.complete(request.params, request.url)
     log.info('OpenID Info Status: %s' % info.status)
     if info.status == consumer.SUCCESS:
