@@ -124,7 +124,7 @@ def process_incoming_request(context, request, incoming_openid_url):
                 'No OpenID services found for %s' % incoming_openid_url)
     #Not sure what the point of setting this to anything else is
     realm_name = settings.get('openid.realm_name', request.host_url)
-    return_url = request.url
+    return_url = request.path_url
     redirect_url = openid_request.redirectURL(realm_name, return_url)
     log.info('Realm Name: %s' % realm_name)
     log.info('Return URL from provider will be: %s' % return_url)
