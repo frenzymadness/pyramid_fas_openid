@@ -27,7 +27,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.security import remember
 
 from openid_teams import teams
-import fedora._openid_extensions.openid_cla as cla
+from openid_cla import cla
 
 from itertools import chain
 
