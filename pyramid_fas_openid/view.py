@@ -65,7 +65,7 @@ def get_sreg_optional_from_settings(settings):
 def verify_openid(context, request):
     settings = request.registry.settings
     openid_field = settings.get('openid.param_field_name', 'openid')
-    log.info('OpenID Field to search for: %s' % openid_field)
+    log.debug('OpenID Field to search for: %s' % openid_field)
     incoming_openid_url = request.params.get(openid_field, None)
     openid_mode = request.params.get('openid.mode', None)
     if incoming_openid_url is not None:
@@ -83,14 +83,14 @@ def worthless_callback(request, success_args, success_dict = {}):
 
 def process_incoming_request(context, request, incoming_openid_url):
     settings = request.registry.settings
-    log.info('OpenID URL supplied by user: %s' % incoming_openid_url)
+    log.debug('OpenID URL supplied by user: %s' % incoming_openid_url)
     openid_consumer = consumer.Consumer(request.session, None)
     try:
         openid_request = openid_consumer.begin(incoming_openid_url)
         ax_required = get_ax_required_from_settings(settings)
         ax_optional = get_ax_optional_from_settings(settings)
-        log.info('ax_required: %s' % ax_required)
-        log.info('ax_optional: %s' % ax_optional)
+        log.debug('ax_required: %s' % ax_required)
+        log.debug('ax_optional: %s' % ax_optional)
         if len(ax_required.values()) or len(ax_optional.values()):
             fetch_request = ax.FetchRequest()
             for value in ax_required.values():
@@ -101,8 +101,8 @@ def process_incoming_request(context, request, incoming_openid_url):
 
         sreg_required = get_sreg_required_from_settings(settings)
         sreg_optional = get_sreg_optional_from_settings(settings)
-        log.info('sreg_required: %s' % sreg_required)
-        log.info('sreg_optional: %s' % sreg_optional)
+        log.debug('sreg_required: %s' % sreg_required)
+        log.debug('sreg_optional: %s' % sreg_optional)
         if len(sreg_required) or len(sreg_optional):
             sreq = sreg.SRegRequest(required=sreg_required,
                     optional=sreg_optional)
@@ -130,9 +130,9 @@ def process_incoming_request(context, request, incoming_openid_url):
     realm_name = settings.get('openid.realm_name', request.host_url)
     return_url = request.path_url
     redirect_url = openid_request.redirectURL(realm_name, return_url)
-    log.info('Realm Name: %s' % realm_name)
-    log.info('Return URL from provider will be: %s' % return_url)
-    log.info('Redirecting to: %s' % redirect_url)
+    log.debug('Realm Name: %s' % realm_name)
+    log.debug('Return URL from provider will be: %s' % return_url)
+    log.debug('Redirecting to: %s' % redirect_url)
     return HTTPFound(location=redirect_url)
 
 
@@ -142,7 +142,6 @@ def process_provider_response(context, request):
     info = openid_consumer.complete(request.params, request.url)
     log.info('OpenID Info Status: %s' % info.status)
     if info.status == consumer.SUCCESS:
-        log.info('OpenID login successful.')
         success_dict = {
                 'identity_url': info.identity_url,
                 'ax': {},
@@ -176,7 +175,7 @@ def process_provider_response(context, request):
 
         callback = settings.get('openid.success_callback', None)
         if callback is not None:
-            log.info('Callback for storing result: %s' % callback)
+            log.debug('Callback for storing result: %s' % callback)
             #Isn't there a better/standard way to parse
             #module.submodule:functions, or is this it?
             callback_function = get_callback(callback)
@@ -198,7 +197,7 @@ def get_callback(callback_string):
     return callback_function
 
 def error_to_login_form(request, message):
-    log.info('OpenID ERROR: %s' % message)
+    log.warning('OpenID ERROR: %s' % message)
     settings = request.registry.settings
     error_url = settings.get('openid.error_destination', request.referrer)
     if error_url is None:
