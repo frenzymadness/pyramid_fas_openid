@@ -24,6 +24,7 @@ from openid_cla import cla
 from itertools import chain
 
 import logging
+import six
 
 log = logging.getLogger(__name__)
 
@@ -102,7 +103,7 @@ def process_incoming_request(context, request, incoming_openid_url):
 
         # Default is magic which requests all groups from FAS-OpenID >= 0.2.0
         groups = request.registry.settings.get('openid.groups', '_FAS_ALL_GROUPS_')
-        if isinstance(groups, basestring):
+        if isinstance(groups, six.string_types):
             groups = groups.split()
         openid_request.addExtension(teams.TeamsRequest(requested=groups))
         openid_request.addExtension(cla.CLARequest(requested=[cla.CLA_URI_FEDORA_DONE]))
