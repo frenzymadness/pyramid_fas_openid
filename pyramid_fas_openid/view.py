@@ -107,10 +107,10 @@ def process_incoming_request(context, request, incoming_openid_url):
             groups = groups.split()
         openid_request.addExtension(teams.TeamsRequest(requested=groups))
         openid_request.addExtension(cla.CLARequest(requested=[cla.CLA_URI_FEDORA_DONE]))
-    except consumer.DiscoveryFailure, exc:
+    except consumer.DiscoveryFailure as exc:
         # eventually no openid server could be found
         return error_to_login_form(request, 'Error in discovery: %s' % exc[0])
-    except KeyError, exc:
+    except KeyError as exc:
         # TODO: when does that happen, why does plone.openid use "pass" here?
         return error_to_login_form(request, 'Error in discovery: %s' % exc[0])
     # not sure this can still happen but we are making sure.
